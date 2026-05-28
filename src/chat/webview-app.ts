@@ -504,17 +504,20 @@ window.addEventListener("message", (event) => {
       break;
 
     case "generationComplete":
-      // Close any tool calls still marked as running
       if (currentAssistantMsg) {
         currentAssistantMsg.removeReasoningCursor();
+        // Mark running tool calls as done and collapse the card
         currentAssistantMsg.toolCalls.forEach((tc) => {
           if (tc.status === "running") {
             const statusEl = tc.el.querySelector(".tool-status")!;
-            statusEl.textContent = "done";
+            statusEl.textContent = "✓";
             statusEl.className = "tool-status done";
             tc.status = "done";
           }
         });
+        // Collapse tools card
+        const toolsCard = (currentAssistantMsg as any)._toolsCard as HTMLElement | undefined;
+        if (toolsCard) toolsCard.classList.remove("open");
       }
       currentAssistantMsg = null;
       currentAssistantContent = "";
@@ -583,6 +586,29 @@ window.addEventListener("message", (event) => {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 });
 
+function ensureToolsCard(container: ReturnType<typeof addMessage>) {
+  if ((container as any)._toolsCard) return;
+  const card = document.createElement("div");
+  card.className = "tools-card open";
+  card.innerHTML =
+    '<div class="tools-card-header">' +
+    '<span class="tools-card-icon">🧰</span>' +
+    '<span class="tools-card-title">Tools</span>' +
+    '<span class="tools-card-count"></span>' +
+    '<span class="tools-card-chevron">▾</span>' +
+    "</div>" +
+    '<div class="tools-card-body"></div>';
+  card.querySelector(".tools-card-header")!.addEventListener("click", () => {
+    card.classList.toggle("open");
+  });
+  container.el.appendChild(card);
+  // Refs on the message object
+  (container as any)._toolsCard = card;
+  (container as any)._toolsBody = card.querySelector(".tools-card-body")!;
+  (container as any)._toolsCount = card.querySelector(".tools-card-count")!;
+  (container as any)._toolsSeen = 0;
+}
+
 function renderToolCall(
   container: ReturnType<typeof addMessage>,
   chunk: {
@@ -593,53 +619,54 @@ function renderToolCall(
   },
 ): void {
   const id = chunk.toolCallId;
+  ensureToolsCard(container);
+
+  const body = (container as any)._toolsBody as HTMLElement;
+  const count = (container as any)._toolsCount as HTMLElement;
+
   if (!container.toolCalls.has(id)) {
-    const tcDiv = document.createElement("div");
-    tcDiv.className = "tool-call open";
-    tcDiv.innerHTML =
-      '<div class="tool-header">' +
-      '<span class="tool-icon">🔧</span>' +
-      '<span class="tool-name">' +
+    const row = document.createElement("div");
+    row.className = "tool-row";
+    row.innerHTML =
+      '<span class="tool-row-icon">🔹</span>' +
+      '<span class="tool-row-name">' +
       escapeHtml(chunk.toolName || "Tool call") +
       "</span>" +
       '<span class="tool-status running">running</span>' +
-      "</div>" +
-      '<div class="tool-output"></div>';
-
-    tcDiv.querySelector(".tool-header")!.addEventListener("click", () => {
-      tcDiv.classList.toggle("open");
-    });
-
-    container.el.appendChild(tcDiv);
-    container.toolCalls.set(id, { el: tcDiv, status: "running" });
+      '<pre class="tool-row-output"></pre>';
+    body.appendChild(row);
+    container.toolCalls.set(id, { el: row, status: "running" });
+    (container as any)._toolsSeen++;
+    count.textContent = String((container as any)._toolsSeen);
   }
 
   const tc = container.toolCalls.get(id)!;
-  const nameEl = tc.el.querySelector(".tool-name")! as HTMLElement;
+  const nameEl = tc.el.querySelector(".tool-row-name")! as HTMLElement;
   const statusEl = tc.el.querySelector(".tool-status")!;
-  const outputEl = tc.el.querySelector(".tool-output")!;
+  const outputEl = tc.el.querySelector(".tool-row-output")! as HTMLElement;
 
-  // Backfill tool name if it was empty and we now have one
   if (chunk.toolName && (!nameEl.textContent || nameEl.textContent === "Tool call")) {
     nameEl.textContent = chunk.toolName;
   }
 
   if (chunk.status === "completed") {
-    statusEl.textContent = "done";
+    statusEl.textContent = "✓";
     statusEl.className = "tool-status done";
     if (chunk.output) {
       outputEl.textContent = chunk.output.slice(0, 5000);
+      outputEl.style.display = "block";
     }
     tc.status = "done";
   } else if (chunk.status === "error") {
-    statusEl.textContent = "error";
+    statusEl.textContent = "✗";
     statusEl.className = "tool-status error";
     if (chunk.output) {
       outputEl.textContent = chunk.output;
+      outputEl.style.display = "block";
     }
     tc.status = "error";
   } else if (chunk.status === "started") {
-    statusEl.textContent = "running";
+    statusEl.textContent = "…";
     statusEl.className = "tool-status running";
   }
 }

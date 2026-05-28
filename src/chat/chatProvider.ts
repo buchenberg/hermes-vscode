@@ -698,46 +698,69 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       0%, 100% { opacity: 1; }
       50% { opacity: 0; }
     }
-    /* Tool calls */
-    .tool-call {
+    /* Tools card — single collapsible container per message */
+    .tools-card {
       margin: 6px 0;
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
     }
-    .tool-call .tool-header {
+    .tools-card-header {
       display: flex; align-items: center; gap: 6px;
-      padding: 6px 10px;
+      padding: 4px 10px;
       background: var(--tool-bg);
       font-size: 12px;
       cursor: pointer;
+      user-select: none;
     }
-    .tool-call .tool-header:hover { opacity: 0.85; }
-    .tool-call .tool-icon { font-size: 14px; }
-    .tool-call .tool-name { font-weight: 500; flex: 1; }
-    .tool-call .tool-status {
-      font-size: 10px; padding: 2px 6px;
-      border-radius: 4px;
-      background: var(--dim); color: var(--bg);
+    .tools-card-header:hover { opacity: 0.85; }
+    .tools-card-icon { font-size: 13px; }
+    .tools-card-title { font-weight: 500; }
+    .tools-card-count {
+      font-size: 10px; color: var(--dim);
+      background: var(--bg); padding: 0 4px; border-radius: 3px;
     }
-    .tool-call .tool-status.running {
+    .tools-card-chevron {
+      margin-left: auto; font-size: 10px; color: var(--dim);
+      transition: transform 0.15s;
+    }
+    .tools-card:not(.open) .tools-card-chevron { transform: rotate(-90deg); }
+    .tools-card-body { display: none; }
+    .tools-card.open .tools-card-body { display: block; }
+    .tool-row {
+      display: flex; align-items: baseline; gap: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .tool-row:first-child { border-top: none; }
+    .tool-row-icon { font-size: 10px; flex-shrink: 0; }
+    .tool-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tool-row-output {
+      display: none;
+      width: 100%; margin: 2px 0 4px;
+      padding: 6px 8px; font-size: 11px;
+      font-family: var(--vscode-editor-font-family);
+      white-space: pre-wrap; max-height: 200px; overflow: auto;
+      background: var(--code-bg);
+      border-radius: 3px;
+      color: var(--dim);
+    }
+    .tool-status {
+      font-size: 10px; padding: 1px 5px;
+      border-radius: 4px; font-weight: 500;
+      flex-shrink: 0;
+    }
+    .tool-status.running {
       background: var(--vscode-testing-iconQueued); color: var(--bg);
     }
-    .tool-call .tool-status.done {
+    .tool-status.done {
       background: var(--vscode-testing-iconPassed); color: var(--bg);
     }
-    .tool-call .tool-status.error {
+    .tool-status.error {
       background: var(--vscode-testing-iconFailed); color: var(--bg);
     }
-    .tool-call .tool-output {
-      display: none;
-      padding: 8px 10px; font-size: 12px;
-      font-family: var(--vscode-editor-font-family);
-      white-space: pre-wrap; max-height: 300px; overflow: auto;
-      background: var(--code-bg);
-      border-top: 1px solid var(--border);
-    }
-    .tool-call.open .tool-output { display: block; }
     /* Plan / todo list */
     .plan {
       margin: 8px 0; padding: 10px;
