@@ -236,7 +236,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "npm run bundle-webview && tsc -p ./",
+    "compile": "npm run bundle-webview && cp node_modules/@vscode/codicons/dist/codicon.css dist/ && cp node_modules/@vscode/codicons/dist/codicon.ttf dist/ && tsc -p ./",
     "bundle-webview": "NODE_ENV=development ./node_modules/.bin/esbuild src/chat/webview-app.ts --bundle --format=iife --target=es2020 --outfile=dist/webview-bundle.js --loader:.css=copy --asset-names=[name]",
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",

@@ -471,9 +471,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       vscode.Uri.file(path.join(this._extensionUri.fsPath, "dist", "webview-bundle.js")),
     );
     const codiconsUri = webview.asWebviewUri(
-      vscode.Uri.file(
-        path.join(this._extensionUri.fsPath, "node_modules", "@vscode/codicons", "dist", "codicon.css"),
-      ),
+      vscode.Uri.file(path.join(this._extensionUri.fsPath, "dist", "codicon.css")),
     );
     const hljsCss = webview.asWebviewUri(
       vscode.Uri.file(path.join(this._extensionUri.fsPath, "dist", "github-dark.min.css")),
