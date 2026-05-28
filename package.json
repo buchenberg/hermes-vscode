@@ -1,0 +1,263 @@
+{
+  "name": "hermes-vscode",
+  "displayName": "Hermes Agent",
+  "description": "Hermes Agent — autonomous AI coding agent for VS Code",
+  "version": "0.1.0",
+  "publisher": "buchenberg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/buchenberg/hermes-agent"
+  },
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Chat",
+    "Machine Learning",
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "agent",
+    "hermes",
+    "coding",
+    "copilot",
+    "llm",
+    "chat"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "hermes.startAgent",
+        "title": "Hermes: Start Agent",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.stopAgent",
+        "title": "Hermes: Stop Agent",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.restartAgent",
+        "title": "Hermes: Restart Agent",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.openChat",
+        "title": "Hermes: Open Chat",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.sendSelection",
+        "title": "Hermes: Send Selection to Chat",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.explainCode",
+        "title": "Hermes: Explain This Code",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.fixCode",
+        "title": "Hermes: Fix This Code",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.reviewCode",
+        "title": "Hermes: Review This File",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.setupAgent",
+        "title": "Hermes: Setup Agent (Model/Provider)",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.showAgentStatus",
+        "title": "Hermes: Show Agent Status",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.newSession",
+        "title": "Hermes: New Session",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.showLogs",
+        "title": "Hermes: Show Logs",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.resumeSession",
+        "title": "Resume Session",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.forkSession",
+        "title": "Fork Session",
+        "category": "Hermes"
+      },
+      {
+        "command": "hermes.deleteSession",
+        "title": "Delete Session",
+        "category": "Hermes"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "hermes.sendSelection",
+        "key": "ctrl+shift+h",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "hermes.openChat",
+        "key": "ctrl+shift+alt+h",
+        "when": "!hermesChatVisible"
+      }
+    ],
+    "configuration": {
+      "title": "Hermes Agent",
+      "properties": {
+        "hermes.path": {
+          "type": "string",
+          "default": "hermes",
+          "description": "Path to the hermes CLI binary. Defaults to 'hermes' (from PATH)."
+        },
+        "hermes.args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Additional arguments to pass to 'hermes acp'."
+        },
+        "hermes.autoStart": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically start the Hermes ACP agent when VS Code opens."
+        },
+        "hermes.model": {
+          "type": "string",
+          "default": "",
+          "description": "Override the model used by Hermes (e.g. 'anthropic/claude-sonnet-4'). Leave blank to use Hermes config."
+        },
+        "hermes.provider": {
+          "type": "string",
+          "default": "",
+          "description": "Override the provider used by Hermes. Leave blank to use Hermes config."
+        },
+        "hermes.workingDirectory": {
+          "type": "string",
+          "default": "${workspaceFolder}",
+          "description": "Working directory for the Hermes agent. Defaults to the workspace root."
+        },
+        "hermes.showInlineCompletions": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show inline code completions from Hermes (experimental)."
+        },
+        "hermes.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose debug logging. Logs all JSON-RPC traffic, webview message flow, and diagnostics to the 'Hermes Agent' output channel."
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "hermes-sidebar",
+          "title": "Hermes Agent",
+          "icon": "media/hermes-sidebar.svg"
+        }
+      ]
+    },
+    "views": {
+      "hermes-sidebar": [
+        {
+          "id": "hermes.chatView",
+          "name": "Chat",
+          "type": "webview"
+        },
+        {
+          "id": "hermes-sessions",
+          "name": "Agent Sessions",
+          "type": "tree",
+          "icon": "$(history)",
+          "when": "hermes.agentConnected"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "hermes-sessions",
+        "contents": "No saved sessions.\n[Start a Chat](command:hermes.openChat) to create your first session.",
+        "when": "hermes.agentConnected"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "hermes.newSession",
+          "when": "view == hermes-sessions",
+          "group": "navigation"
+        },
+        {
+          "command": "hermes.resumeSession",
+          "when": "view == hermes-sessions",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "hermes.resumeSession",
+          "when": "view == hermes-sessions",
+          "group": "inline"
+        },
+        {
+          "command": "hermes.forkSession",
+          "when": "view == hermes-sessions",
+          "group": "inline"
+        },
+        {
+          "command": "hermes.deleteSession",
+          "when": "view == hermes-sessions",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm run bundle-webview && tsc -p ./",
+    "bundle-webview": "NODE_ENV=development ./node_modules/.bin/esbuild src/chat/webview-app.ts --bundle --format=iife --target=es2020 --outfile=dist/webview-bundle.js --loader:.css=copy --asset-names=[name]",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/marked": "^5.0.2",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vscode/vsce": "^2.22.0",
+    "esbuild": "^0.28.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "@agentclientprotocol/sdk": "^0.22.1",
+    "@vscode/codicons": "^0.0.45",
+    "highlight.js": "^11.11.1",
+    "marked": "^18.0.4"
+  }
+}

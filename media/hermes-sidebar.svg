@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Hermes winged sandal / caduceus motif as a modern coding agent icon -->
+  <path d="M12 2L8 8l4 4-4 4 4 4-4 2"/>
+  <path d="M12 2l4 6-4 4 4 4-4 4 4 2"/>
+  <circle cx="12" cy="12" r="2" fill="currentColor"/>
+  <line x1="18" y1="4" x2="22" y2="4"/>
+  <line x1="18" y1="8" x2="22" y2="8"/>
+  <line x1="18" y1="20" x2="22" y2="20"/>
+  <line x1="18" y1="16" x2="22" y2="16"/>
+</svg>
